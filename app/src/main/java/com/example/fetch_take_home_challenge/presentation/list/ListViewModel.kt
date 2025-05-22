@@ -18,18 +18,17 @@ import javax.inject.Inject
 class ListViewModel @Inject internal constructor(
     private val listRepository: ListRepository
 ) : ViewModel() {
-    private val _state = MutableStateFlow(ListState())
+    private val _state: MutableStateFlow<ListState> = MutableStateFlow(ListState.Loading)
     val state = _state
         .onStart { getList() }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
-            ListState()
+            ListState.Loading
         )
 
     private fun getList() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             when (val result = listRepository.getList()) {
                 is Result.Success -> {
                     val list = result.data
@@ -39,15 +38,17 @@ class ListViewModel @Inject internal constructor(
                             it.listId
                         }
                     Log.d("ViewModel", list?.size.toString())
-                    _state.update { it.copy(isLoading = false, list = list ?: emptyMap()) }
+                    _state.update { ListState.Success(list ?: emptyMap()) }
                 }
 
                 is Result.Error -> {
-                    _state.update { it.copy(isLoading = false) }
+                    _state.update { ListState.Error }
                     Log.e("ListViewModel", result.message.toString())
                 }
 
-                else -> {}
+                is Result.Loading<*> -> {
+                    _state.update { ListState.Loading }
+                }
             }
         }
     }

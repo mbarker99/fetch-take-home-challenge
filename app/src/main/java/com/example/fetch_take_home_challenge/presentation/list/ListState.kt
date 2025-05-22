@@ -2,7 +2,8 @@ package com.example.fetch_take_home_challenge.presentation.list
 
 import com.example.fetch_take_home_challenge.domain.model.ListItem
 
-data class ListState(
-    val isLoading: Boolean = false,
-    val list: Map<Int, List<ListItem>> = emptyMap()
-    )
+sealed class ListState {
+    class Success(val list: Map<Int, List<ListItem>>) : ListState()
+    data object Error: ListState()
+    data object Loading : ListState()
+}

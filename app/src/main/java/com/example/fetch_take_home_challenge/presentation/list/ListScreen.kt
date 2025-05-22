@@ -20,34 +20,40 @@ fun ListScreen(
     state: ListState,
     modifier: Modifier = Modifier
 ) {
-    if (state.isLoading) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = modifier.fillMaxSize()
-        ) {
-            CircularProgressIndicator()
+    when (state) {
+        is ListState.Loading -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier.fillMaxSize()
+            ) {
+                CircularProgressIndicator()
+            }
         }
-    } else {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(top = 32.dp)
-                .padding(bottom = 16.dp)
-        ) {
-            val list = state.list.toList().sortedBy { it.first }
-            item {
-                for (item in list) {
-                    Text(
-                        text = "List ${item.first}",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .padding(top = 32.dp)
-                    )
-                    ListItemCard(item.second.sortedBy { it.name })
+        is ListState.Error -> {
+
+        }
+        is ListState.Success -> {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 32.dp)
+                    .padding(bottom = 16.dp)
+            ) {
+                val list = state.list.toList().sortedBy { it.first }
+                item {
+                    for (item in list) {
+                        Text(
+                            text = "List ${item.first}",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .padding(top = 32.dp)
+                        )
+                        ListItemCard(item.second.sortedBy { it.name })
+                    }
                 }
             }
         }
